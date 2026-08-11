@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>og poster renderer</title>
+<style>body{margin:0;background:#333}canvas{display:block}</style></head>
+<body>
+<canvas id="og" width="1200" height="630"></canvas>
+<script>
+// 1200×630 Open Graph poster for Tide Poker — the game's own vocabulary:
+// the railed felt, rank-first cards, and the dream hand on the table.
+const cv = document.getElementById('og'), ctx = cv.getContext('2d');
+const W = 1200, H = 630;
+
+// wooden rail
+ctx.fillStyle='#4a3626'; ctx.fillRect(0,0,W,H);
+// felt with nap + vignette
+ctx.save(); ctx.beginPath(); ctx.roundRect(22,22,W-44,H-44,20); ctx.clip();
+let g = ctx.createRadialGradient(W/2,-80,80,W/2,H/2,900);
+g.addColorStop(0,'#2d6152'); g.addColorStop(1,'#24503f');
+ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+ctx.globalAlpha=0.022;
+for(let i=-H;i<W;i+=6){ ctx.strokeStyle='#fff'; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.moveTo(i,H); ctx.lineTo(i+H,0); ctx.stroke(); }
+ctx.globalAlpha=1;
+const vg = ctx.createRadialGradient(W/2,H/2,300,W/2,H/2,760);
+vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(0,0,0,.35)');
+ctx.fillStyle=vg; ctx.fillRect(0,0,W,H);
+ctx.restore();
+ctx.strokeStyle='rgba(255,255,255,.12)'; ctx.lineWidth=4;
+ctx.beginPath(); ctx.roundRect(24,24,W-48,H-48,18); ctx.stroke();
+
+// the dream hand: a royal in spades, rank-first faces, gently fanned
+const CARDS = [['10','♠'],['J','♠'],['Q','♠'],['K','♠'],['A','♠']];
+const CW=170, CH=242;
+CARDS.forEach(([r,s],i)=>{
+  const x = 250 + i*150, y = 140 + Math.abs(i-2)*8;
+  const rot = (i-2)*0.045;
+  ctx.save(); ctx.translate(x+CW/2,y+CH/2); ctx.rotate(rot); ctx.translate(-CW/2,-CH/2);
+  ctx.shadowColor='rgba(0,0,0,.45)'; ctx.shadowBlur=18; ctx.shadowOffsetY=8;
+  ctx.fillStyle='#fdfbf4';
+  ctx.beginPath(); ctx.roundRect(0,0,CW,CH,16); ctx.fill();
+  ctx.shadowColor='transparent';
+  ctx.strokeStyle='#cfc6ae'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.roundRect(0,0,CW,CH,16); ctx.stroke();
+  // gold hold rail on the royal
+  ctx.strokeStyle='#b8860b'; ctx.lineWidth=5;
+  ctx.beginPath(); ctx.roundRect(5,5,CW-10,CH-10,12); ctx.stroke();
+  // rank-first
+  ctx.fillStyle='#232e38';
+  ctx.font='700 64px "Iowan Old Style",Palatino,Georgia,serif';
+  ctx.fillText(r, 16, 66);
+  ctx.font='38px system-ui';
+  ctx.fillText(s, 18, 108);
+  ctx.globalAlpha=0.16;
+  ctx.font='150px system-ui'; ctx.textAlign='center';
+  ctx.fillText(s, CW/2, CH/2+82);
+  ctx.globalAlpha=1; ctx.textAlign='start';
+  ctx.restore();
+});
+
+// HELD pennant under the middle card
+ctx.fillStyle='#f7f1e3'; ctx.strokeStyle='#d9cdb4'; ctx.lineWidth=2;
+ctx.beginPath(); ctx.roundRect(W/2-64,436,128,38,999); ctx.fill(); ctx.stroke();
+ctx.fillStyle='#232e38'; ctx.font='800 19px system-ui'; ctx.textAlign='center';
+ctx.fillText('R O Y A L', W/2, 462); ctx.textAlign='start';
+
+// title panel, bottom-left on paper
+const px=56, py=482, pw=560, ph=110;
+ctx.fillStyle='rgba(247,241,227,.97)';
+ctx.strokeStyle='#d9cdb4'; ctx.lineWidth=2;
+ctx.beginPath(); ctx.roundRect(px,py,pw,ph,16); ctx.fill(); ctx.stroke();
+ctx.fillStyle='#1e6f8e'; ctx.fillRect(px,py,pw,5);
+ctx.fillStyle='#232e38';
+ctx.font='700 44px "Iowan Old Style",Palatino,Georgia,serif';
+ctx.fillText('TIDE POKER', px+24, py+48);
+ctx.fillStyle='#5c6a76';
+ctx.font='italic 21px Georgia,serif';
+ctx.fillText('one block deals, the next one draws', px+24, py+78);
+ctx.fillStyle='#1e6f8e';
+ctx.font='600 15px system-ui,sans-serif';
+ctx.fillText('provably fair · two blocks, one hand · pure static', px+24, py+100);
+
+// stake strip, bottom-right
+ctx.fillStyle='rgba(247,241,227,.8)'; ctx.font='600 20px system-ui'; ctx.textAlign='right';
+ctx.fillText('S T A K E  1 0   ·   P A Y S  × 8 0 0', W-70, H-52);
+ctx.textAlign='start';
+</script>
+</body>
+</html>
