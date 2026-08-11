@@ -68,26 +68,52 @@
   table.pay td{padding:7px 14px;border-bottom:1px solid #f0e9d8}
   table.pay tr:last-child td{border-bottom:0}
   table.pay td.m{text-align:right;font-weight:700}
-  table.pay tr.lit{background:#eef6fa;box-shadow:inset 3px 0 0 var(--accent);font-weight:650}
+  table.pay tr.lit{background:#eef6fa;box-shadow:inset 3px 0 0 var(--accent);font-weight:700}
   table.pay tr.hit{background:#e8f4ec;box-shadow:inset 3px 0 0 var(--win);font-weight:700}
+  table.pay tr:first-child td{font-family:var(--serif);font-size:14px}
+  table.pay tr:first-child td.m{color:var(--gold)}
 
   /* ---------- the table ---------- */
+  /* The table earns the word: a wooden rail, an inner ring, a vignette
+     pulling light to the cards, and a whisper of nap in the felt. */
   .table-frame{
-    position:relative;border:1px solid var(--line);border-radius:14px;overflow:hidden;
+    position:relative;border:8px solid #4a3626;border-radius:16px;overflow:hidden;
     background:
+      repeating-linear-gradient(55deg, rgba(255,255,255,.022) 0 3px, transparent 3px 6px),
       radial-gradient(140% 120% at 50% -10%, var(--felt) 0%, var(--felt-dark) 78%);
-    box-shadow:0 10px 30px -18px rgba(20,50,40,.6), inset 0 1px 0 rgba(255,255,255,.08);
-    padding:26px 18px 20px;min-height:330px;
+    box-shadow:
+      inset 0 0 0 2px rgba(255,255,255,.12),
+      inset 0 0 60px rgba(0,0,0,.35),
+      0 14px 30px -16px rgba(20,50,40,.55);
+    padding:22px 18px 18px;min-height:290px;
+    display:flex;flex-direction:column;justify-content:center;
   }
   .table-note{
-    text-align:center;color:rgba(247,241,227,.55);font:italic 14px Georgia,serif;
-    margin:0 0 16px;min-height:18px;
+    text-align:center;color:rgba(247,241,227,.85);
+    font:italic 15px var(--serif);
+    margin:0 0 14px;min-height:19px;
   }
-  .hand{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;padding-bottom:30px}
+  /* the on-felt readout: stake and the state line live ON the table */
+  .felt-strip{
+    position:absolute;left:0;right:0;bottom:10px;text-align:center;
+    color:rgba(247,241,227,.8);font:600 13px system-ui;letter-spacing:.06em;
+    font-variant-numeric:tabular-nums;
+  }
+  .hand{display:flex;justify-content:center;gap:9px;flex-wrap:nowrap;padding-bottom:34px}
   .cardbtn{
-    width:90px;height:128px;border-radius:10px;border:0;cursor:pointer;padding:0;
+    width:clamp(56px, 16.5vw, 90px);aspect-ratio:90/128;
+    font-size:clamp(9.5px, 1.75vw, 15px);
+    border-radius:10px;border:0;cursor:pointer;padding:0;
     position:relative;perspective:600px;background:transparent;
+    transition:transform .2s cubic-bezier(.2,1.4,.4,1);
   }
+  /* held cards lift; once any hold exists, the unchosen dim — asymmetry
+     a player can read from across the room */
+  .cardbtn[aria-pressed="true"]{transform:translateY(-9px)}
+  .hand.holding .cardbtn.canhold:not([aria-pressed="true"]) .face{filter:brightness(.82) saturate(.9)}
+  .cardbtn.paying .face{outline:3px solid var(--gold);outline-offset:-3px;animation:paypulse 1s ease-in-out 2}
+  @keyframes paypulse{50%{box-shadow:0 0 22px 2px rgba(184,134,11,.7)}}
+  .cardbtn:focus-visible{outline:2px solid var(--paper);outline-offset:3px}
   .cardbtn:disabled{cursor:default}
   .cardbtn .flip{
     position:absolute;inset:0;transform-style:preserve-3d;
@@ -104,20 +130,18 @@
   }
   .back{
     transform:rotateY(180deg);
-    background:
-      repeating-linear-gradient(45deg, rgba(255,255,255,.06) 0 6px, transparent 6px 12px),
-      linear-gradient(#25566f,#1e4a60);
+    background-color:#1e4a60;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='14'%3E%3Cpath d='M0 7c3.5-4.5 7-4.5 10.5 0S17.5 11.5 21 7s5.4-4.7 7-2.5' fill='none' stroke='rgba(247,241,227,.16)' stroke-width='1.6'/%3E%3C/svg%3E");
     border:1px solid rgba(255,255,255,.25);
+    box-shadow:inset 0 0 0 4px rgba(255,255,255,.14), inset 0 0 0 6px rgba(0,0,0,.15);
   }
-  .back::after{
-    content:'〰';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-    color:rgba(247,241,227,.5);font-size:30px;
-  }
-  .pip{position:absolute;font:700 17px/1.05 system-ui;text-align:center;white-space:pre-line}
-  .pip.tl{top:7px;left:8px}
-  .pip.br{bottom:7px;right:8px;transform:rotate(180deg)}
-  .bigsuit{font-size:44px}
-  .red{color:#b0483f}.black{color:#232e38}
+  /* rank-first faces: the corner index is the biggest thing on the card —
+     poker is read by rank — and the center suit fades to a watermark */
+  .pip{position:absolute;font:700 1.9em/1 var(--serif);text-align:center;white-space:pre-line}
+  .pip.tl{top:6px;left:7px}
+  .pip .s{font-size:.62em;display:block;margin-top:1px}
+  .bigsuit{font-size:4.4em;opacity:.16}
+  .red{color:#c94f4f}.black{color:#232e38}
   .cardbtn .held-tag{
     position:absolute;left:50%;transform:translateX(-50%) translateY(6px);bottom:-26px;
     background:var(--paper);color:var(--ink);border:1px solid var(--line);
@@ -135,7 +159,7 @@
   #scrim{position:absolute;inset:0;background:rgba(10,30,24,.4);opacity:0;transition:opacity .3s ease;pointer-events:none}
   #scrim.show{opacity:1}
   #banner{
-    position:absolute;left:0;right:0;top:30%;text-align:center;pointer-events:none;
+    position:absolute;left:0;right:0;bottom:14%;text-align:center;pointer-events:none;
     opacity:0;transform:translateY(10px) scale(.94);
     transition:opacity .18s ease, transform .3s cubic-bezier(.2,1.4,.4,1);
   }
@@ -180,7 +204,7 @@
   .quick button:hover{border-color:var(--accent);color:var(--accent)}
   .quick button[aria-pressed="true"]{background:var(--paper);border-color:var(--accent);color:var(--accent)}
   #go-btn{
-    border:0;border-radius:10px;padding:13px;cursor:pointer;
+    border:0;border-radius:10px;padding:13px;cursor:pointer;min-height:47px;
     font:700 15px system-ui;letter-spacing:.04em;color:#fff;
     background:linear-gradient(#2a86a8,var(--accent));
     box-shadow:0 6px 14px -6px rgba(30,111,142,.55), inset 0 1px 0 rgba(255,255,255,.25);
@@ -213,6 +237,9 @@
   .tag.tide{border-color:#bcd7e4;background:#eef6fa;color:#23576d}
   .verify-link{color:var(--accent);text-decoration:none}
   .verify-link:hover{text-decoration:underline}
+  button.verify-btn{background:none;border:0;padding:0;font:inherit;cursor:pointer;border-bottom:1px dashed var(--accent)}
+  table.log td:last-child{white-space:nowrap}
+  .mini .held{text-decoration:underline;text-underline-offset:2px}
   .empty{padding:18px 16px;color:var(--ink-soft);font-style:italic;font-family:var(--serif)}
   footer{margin-top:22px;color:var(--ink-soft);font-size:13px;line-height:1.6}
   footer a{color:var(--accent)}
@@ -248,9 +275,10 @@
 
     <div class="table-frame" id="table-frame">
       <p class="table-note" id="table-note">The cards wait on the tide.</p>
-      <div class="hand" id="hand" role="group" aria-label="your hand — click cards to hold them"></div>
+      <div class="hand" id="hand" role="group" aria-label="your hand — select cards to hold them"></div>
+      <div class="felt-strip" id="felt-strip"></div>
       <div id="scrim"></div>
-      <div id="banner"><div class="inner" id="banner-inner"><div class="head" id="banner-head"></div><div class="sub" id="banner-sub"></div></div></div>
+      <div id="banner" role="status"><div class="inner" id="banner-inner"><div class="head" id="banner-head"></div><div class="sub" id="banner-sub"></div></div></div>
     </div>
 
     <div class="card-p">
@@ -309,7 +337,33 @@
 </div>
 
 <script type="module">
-import { PAYTABLE, rankOf, suitOf, RANKS, SUITS, deal, settle } from './poker.js';
+import { PAYTABLE, rankOf, suitOf, RANKS, SUITS, deal, settle, evaluate } from './poker.js';
+
+const RANK_WORDS = ['two','three','four','five','six','seven','eight','nine','ten','jack','queen','king','ace'];
+const SUIT_WORDS = ['spades','hearts','diamonds','clubs'];
+const cardWords = (c) => RANK_WORDS[rankOf(c)] + ' of ' + SUIT_WORDS[suitOf(c)];
+// which cards actually pay, for the gold pulse on a win
+function payingCards(hand, key){
+  if(['royal','sflush','flush','straight','boat'].includes(key)) return [0,1,2,3,4];
+  const byRank = {};
+  hand.forEach((c,i)=>{ (byRank[rankOf(c)] ||= []).push(i); });
+  if(key==='quads'||key==='trips') return Object.values(byRank).find((g)=>g.length>=3) || [];
+  if(key==='twopair') return Object.values(byRank).filter((g)=>g.length===2).flat();
+  if(key==='jacks') return Object.values(byRank).find((g)=>g.length===2 &&
+    rankOf(hand[g[0]])>=9) || [];
+  return [];
+}
+// near-miss detection on a losing final hand: four to a flush, or an open
+// four to a straight — the moments that fuel the next Deal press
+function nearMiss(hand){
+  const suits = {};
+  hand.forEach((c)=>{ suits[suitOf(c)] = (suits[suitOf(c)]||0)+1; });
+  for(const [s,n] of Object.entries(suits)) if(n===4)
+    return `one ${SUIT_WORDS[s].replace(/s$/,'')} short of the flush`;
+  const rs = [...new Set(hand.map(rankOf))].sort((a,b)=>a-b);
+  for(let i=0;i+3<rs.length;i++) if(rs[i+3]-rs[i]===3) return 'one card short of the straight';
+  return null;
+}
 
 /* ================================================================ state */
 const LS = { purse:'poker-purse', log:'poker-log', pending:'poker-pending', sound:'poker-sound', games:'poker-games' };
@@ -357,10 +411,21 @@ function snap(pitch=1){ // a card hitting felt
   const g=c.createGain(); g.gain.value=0.25;
   src.connect(f); f.connect(g); g.connect(c.destination); src.start(t);
 }
-function clack(){ // the hold toggle
+function clack(){ // UI chrome: quiet
   if(!soundOn||!watched()) return; const c=ac(), t=c.currentTime;
   const o=c.createOscillator(), g=c.createGain(); o.type='square'; o.frequency.value=980;
-  o.connect(g); g.connect(c.destination); env(g,t,0.004,0.05,0.05); o.start(t); o.stop(t+0.08);
+  o.connect(g); g.connect(c.destination); env(g,t,0.004,0.035,0.05); o.start(t); o.stop(t+0.08);
+}
+function holdThunk(){ // committing a card: a decision with weight
+  if(!soundOn||!watched()) return; const c=ac(), t=c.currentTime;
+  const o=c.createOscillator(), g=c.createGain(); o.type='sine';
+  o.frequency.setValueAtTime(620,t); o.frequency.exponentialRampToValueAtTime(430,t+0.09);
+  o.connect(g); g.connect(c.destination); env(g,t,0.006,0.09,0.14); o.start(t); o.stop(t+0.2);
+}
+function releaseTick(){ // letting a card go: lighter
+  if(!soundOn||!watched()) return; const c=ac(), t=c.currentTime;
+  const o=c.createOscillator(), g=c.createGain(); o.type='triangle'; o.frequency.value=1150;
+  o.connect(g); g.connect(c.destination); env(g,t,0.004,0.05,0.06); o.start(t); o.stop(t+0.1);
 }
 function fanfare(tier){ // 0 lose, 1 pays, 2 big (flush+), 3 monster (quads+)
   if(!soundOn||!watched()) return; const c=ac(), t=c.currentTime;
@@ -377,12 +442,16 @@ for(let i=0;i<5;i++){
   const b = document.createElement('button');
   b.type='button'; b.className='cardbtn down';
   b.setAttribute('aria-pressed','false');
+  b.setAttribute('aria-label','face-down card');
   b.disabled = true;
   b.innerHTML = `<span class="flip"><span class="face"></span><span class="back"></span></span><span class="held-tag">HELD</span>`;
   b.addEventListener('click', ()=>{
     if(phase!=='hold') return;
-    holds[i] = !holds[i]; clack();
+    holds[i] = !holds[i];
+    holds[i] ? holdThunk() : releaseTick();
     b.setAttribute('aria-pressed', String(holds[i]));
+    handEl.classList.toggle('holding', holds.some(Boolean));
+    litDealt();
     renderSlip();
   });
   handEl.appendChild(b); cardEls.push(b);
@@ -390,57 +459,87 @@ for(let i=0;i<5;i++){
 function faceHTML(card){
   const r = RANKS[rankOf(card)], s = SUITS[suitOf(card)];
   const col = (suitOf(card)===1||suitOf(card)===2) ? 'red' : 'black';
-  return `<span class="pip tl ${col}">${r}\n${s}</span><span class="bigsuit ${col}">${s}</span><span class="pip br ${col}">${r}\n${s}</span>`;
+  return `<span class="pip tl ${col}">${r}<span class="s">${s}</span></span><span class="bigsuit ${col}">${s}</span>`;
 }
 function setCard(i, card, {drawn=false} = {}){
   const b = cardEls[i];
   b.querySelector('.face').innerHTML = faceHTML(card);
   b.classList.remove('down');
-  b.classList.toggle('drawn', drawn);
-  b.setAttribute('aria-label', 'card ' + RANKS[rankOf(card)] + SUITS[suitOf(card)]);
+  if(drawn){
+    // the landing pop fires AFTER the flip settles, not edge-on mid-flip
+    b.classList.remove('drawn');
+    setTimeout(()=>b.classList.add('drawn'), 460);
+  }
+  b.setAttribute('aria-label', cardWords(card));
 }
 function faceDownAll(){
-  cardEls.forEach((b)=>{ b.classList.add('down'); b.classList.remove('drawn'); b.setAttribute('aria-pressed','false'); b.disabled=true; });
+  cardEls.forEach((b)=>{
+    b.classList.add('down'); b.classList.remove('drawn','paying');
+    b.setAttribute('aria-pressed','false');
+    b.setAttribute('aria-label','face-down card');
+    b.disabled=true;
+  });
+  handEl.classList.remove('holding');
 }
 function setHoldable(on){
   cardEls.forEach((b)=>{ b.disabled = !on; b.classList.toggle('canhold', on); });
 }
-function clearHolds(){ holds = [false,false,false,false,false]; cardEls.forEach((b)=>b.setAttribute('aria-pressed','false')); }
+function clearHolds(){ holds = [false,false,false,false,false]; cardEls.forEach((b)=>b.setAttribute('aria-pressed','false')); handEl.classList.remove('holding'); }
 
-/* deal theatre: flip cards one by one */
+/* deal theatre: gather the old hand fully, then flip the new one in — with
+   the felt snap landing when the card visually lands, not when it launches */
+const anyFaceUp = () => cardEls.some((b)=>!b.classList.contains('down'));
 async function showDeal(cards){
+  const hadCards = anyFaceUp();
   faceDownAll(); clearHolds();
-  await sleep(watched() ? 250 : 0);
+  await sleep(watched() ? (hadCards ? 520 : 250) : 0);
   for(let i=0;i<5;i++){
     setCard(i, cards[i]);
-    snap(1 + i*0.06);
+    setTimeout(()=>snap(1 + i*0.06), 210);
     if(watched()) await sleep(240);
   }
 }
-async function showDraw(finalHand, holdsUsed){
+async function showDraw(finalHand, holdsUsed, {sweatLast=false} = {}){
+  // the discards leave the story one by one, voiced
   for(let i=0;i<5;i++){
     if(holdsUsed[i]) continue;
     cardEls[i].classList.add('down');
+    snap(0.7);
+    if(watched()) await sleep(90);
   }
-  await sleep(watched() ? 400 : 0);
-  for(let i=0;i<5;i++){
-    if(holdsUsed[i]) continue;
+  await sleep(watched() ? 460 : 0);
+  const toReveal = [0,1,2,3,4].filter((i)=>!holdsUsed[i]);
+  for(let k=0;k<toReveal.length;k++){
+    const i = toReveal[k];
+    // the last card of a sweat-worthy draw gets its held beat
+    if(sweatLast && k===toReveal.length-1 && watched()) await sleep(550);
     setCard(i, finalHand[i], {drawn:true});
-    snap(1.15 + i*0.06);
+    setTimeout(()=>snap(1.15 + i*0.06), 210);
     if(watched()) await sleep(340);
   }
 }
+/* dealt-hand recognition: the paytable lights while you choose */
+function litDealt(){
+  if(phase!=='hold' || !hand){ return; }
+  const e = evaluate(hand);
+  litRow(e.mult ? e.key : null, false);
+  $('table-note').textContent = e.mult
+    ? `Dealt ${e.name} — pays × ${e.mult} if you keep it. Choose your holds.`
+    : 'Choose your holds, then draw.';
+}
 
 /* ================================================================ banner */
-function showBanner(head, subHTML, won){
+function showBanner(head, subHTML, won, {holdMs=6000, scrim=true} = {}){
   $('banner-head').textContent = head;
   $('banner-sub').innerHTML = subHTML;
   $('banner-inner').className = 'inner ' + (won===true?'win':won===false?'lose':'');
-  $('banner').classList.add('show'); $('scrim').classList.add('show');
+  $('banner').classList.add('show');
+  $('scrim').classList.toggle('show', scrim);
   clearTimeout(showBanner.t);
-  showBanner.t = setTimeout(hideBanner, 6000);
+  showBanner.t = setTimeout(hideBanner, holdMs);
 }
 function hideBanner(){ $('banner').classList.remove('show'); $('scrim').classList.remove('show'); }
+function renderFeltStrip(text){ $('felt-strip').textContent = text; }
 
 /* the purse rolls, never teleports */
 let shownPurse = purse;
@@ -470,19 +569,31 @@ function finishGame({seedA, seedB, holdsUsed, stake, tideInfo}){
 }
 async function presentResult(out, stake){
   const won = out.result.mult >= 1;
-  litRow(out.result.key, won);
-  const tier = out.result.mult>=25 ? 3 : out.result.mult>=4 ? 2 : out.result.mult>=1 ? 1 : 0;
-  fanfare(tier);
-  showBanner(
-    out.result.mult ? out.result.name + '!' : 'No luck this tide',
-    out.result.mult
-      ? `Pays × ${out.result.mult} — <b class="win">${fmtDelta(out.delta)}</b> doubloons`
-      : `The draw came up empty: <b class="lose">${fmtDelta(out.delta)}</b> doubloons`,
-    won,
-  );
-  $('table-note').textContent = out.result.mult
-    ? `${out.result.name} — pays × ${out.result.mult}`
-    : 'Nothing this tide. The cards wait for the next one.';
+  if(won){
+    // wins are loud: the paying cards pulse gold, the banner sits BELOW the
+    // hand it celebrates, and nothing dims the cards you just made
+    litRow(out.result.key, true);
+    payingCards(out.finalHand, out.result.key).forEach((i)=>cardEls[i].classList.add('paying'));
+    const tier = out.result.mult>=25 ? 3 : out.result.mult>=4 ? 2 : 1;
+    fanfare(tier);
+    showBanner(
+      out.result.name + '!',
+      `Pays × ${out.result.mult} — <b class="win">${fmtDelta(out.delta)}</b> doubloons`,
+      true,
+      { holdMs: out.result.mult>=25 ? 12000 : 6000, scrim: false },
+    );
+    $('table-note').textContent = `${out.result.name} — pays × ${out.result.mult}`;
+  } else {
+    // losses are quiet: no banner, no scrim — a soft two-note and the note
+    // line, which owes you the near-miss truth when there is one
+    litRow(null);
+    fanfare(0);
+    const miss = nearMiss(out.finalHand);
+    $('table-note').textContent = miss
+      ? `So close — ${miss}. The cards wait for the next tide.`
+      : 'Nothing this tide. The cards wait for the next one.';
+  }
+  renderFeltStrip(`STAKE ${fmt(stake)} · ${out.result.mult ? 'WIN ' + fmt(out.payout) : 'NO WIN'}`);
 }
 
 /* ================================================================ practice */
@@ -492,11 +603,12 @@ async function practiceDeal(){
   busy = true; phase='idle'; hideBanner(); litRow(null); renderSlip();
   practiceSeedA = await sha256hex('practice|' + randHex(16));
   hand = deal(practiceSeedA);
+  renderFeltStrip(`STAKE ${fmt(st)}`);
   await showDeal(hand);
   phase = 'hold'; busy = false;
   practiceStake = st;
   setHoldable(true);
-  $('table-note').textContent = 'Choose your holds, then draw.';
+  litDealt();
   renderSlip();
 }
 let practiceStake = 0;
@@ -505,9 +617,11 @@ async function practiceDraw(){
   const seedB = await sha256hex('practice-b|' + randHex(16));
   const holdsUsed = [...holds];
   const out = finishGame({ seedA: practiceSeedA, seedB, holdsUsed, stake: practiceStake });
-  await showDraw(out.finalHand, holdsUsed);
+  const sweatLast = out.result.mult >= 4 || nearMiss(out.finalHand) != null;
+  await showDraw(out.finalHand, holdsUsed, { sweatLast });
   await sleep(watched() ? 350 : 0);
   await presentResult(out, practiceStake);
+  clearHolds(); // a finished hand sheds its hold chrome — it is not interactive
   phase = 'done'; busy = false; practiceSeedA = null;
   renderAll();
 }
@@ -556,6 +670,7 @@ let tideTimer = null;
 async function tideTick(){
   if(!pending) return;
   tipAt = 0; const tip = await fetchTip();
+  renderSlip(); // keep the (N to go) progress line honest
   if(pending.stage==='deal'){
     if(tip < pending.heightA + 1) return;               // 1 conf, always
     const hashA = await hashAtHeight(pending.heightA, {cacheOk:true});
@@ -565,10 +680,11 @@ async function tideTick(){
     const seedA = await sha256hex(hashA + '|' + pending.mark);
     hand = deal(seedA);
     busy = true; renderSlip();
+    renderFeltStrip(`STAKE ${fmt(pending.stake)}`);
     await showDeal(hand);
     busy = false;
     phase = 'hold'; setHoldable(true);
-    $('table-note').textContent = 'The tide has dealt. Choose your holds, then commit the draw.';
+    litDealt();
     renderAll();
   } else if(pending.stage==='draw'){
     if(tip < pending.heightB + 1) return;
@@ -585,9 +701,11 @@ async function tideTick(){
     cardEls.forEach((b,i)=>b.setAttribute('aria-pressed', String(holds[i])));
     const out = finishGame({ seedA, seedB: realSeedB, holdsUsed: p.holds, stake: p.stake,
       tideInfo: { heightA: p.heightA, heightB: p.heightB, hashA: p.hashA, hashB, mark: p.mark } });
-    await showDraw(out.finalHand, p.holds);
+    const sweatB = out.result.mult >= 4 || nearMiss(out.finalHand) != null;
+    await showDraw(out.finalHand, p.holds, { sweatLast: sweatB });
     await sleep(watched() ? 350 : 0);
     await presentResult(out, p.stake);
+    clearHolds();
     phase = 'done'; busy = false;
     renderAll();
   }
@@ -630,15 +748,24 @@ function renderSlip(){
   const btn = $('go-btn');
   const holdCount = holds.filter(Boolean).length;
   const tidePendingWait = pending && (pending.stage==='deal' || pending.stage==='draw');
+  // ONE lock predicate drives styling, semantics and behavior alike — no
+  // control may look dead but work, or look live but ignore you
+  const planLocked = busy || phase==='hold' || !!pending;
+  document.querySelector('.slip').classList.toggle('locked', planLocked);
+  $('stake').disabled = planLocked;
+  document.querySelectorAll('#mode button, #quick button').forEach((b)=>{
+    b.disabled = planLocked;
+    b.setAttribute('aria-disabled', String(planLocked));
+  });
   btn.disabled = busy
     || (phase!=='hold' && (st<=0 || st>purse))
     || (mode==='tide' && tidePendingWait)
-    || (mode==='practice' && pending!=null);
+    || (phase!=='hold' && mode==='practice' && pending!=null);
   btn.textContent =
-    busy ? 'On the table…' :
+    busy ? 'Waiting on the tide…' :
     phase==='hold' ? (pending
-      ? `Commit ${holdCount ? holdCount+' hold'+(holdCount>1?'s':'') : 'no holds'} — draw on the next block`
-      : `Draw (${5-holdCount} card${5-holdCount===1?'':'s'})`) :
+      ? (holdCount ? `Commit ${holdCount} hold${holdCount>1?'s':''}` : 'Commit — no holds')
+      : (holdCount===5 ? 'Stand pat' : `Draw (${5-holdCount} card${5-holdCount===1?'':'s'})`)) :
     (mode==='tide' && tidePendingWait) ? 'Waiting on the tide…' :
     (mode==='practice' && pending) ? 'A tide hand is in play' :
     st>purse ? 'Not enough doubloons' :
@@ -646,15 +773,19 @@ function renderSlip(){
   const noteBox = $('tide-note');
   if(pending){
     noteBox.style.display='block';
+    // live progress: the player never does block arithmetic themselves
+    const target = pending.stage==='draw' ? pending.heightB : pending.heightA;
+    const need = target + 1;
+    const toGo = tipHeight!=null ? Math.max(0, need - tipHeight) : null;
+    const prog = toGo!=null ? ` · tip ${fmt(tipHeight)}${toGo ? ` (${toGo} to go)` : ' — settling…'}` : '';
     $('tide-note-text').innerHTML =
-      pending.stage==='deal' ? `Your hand rides block <b>${fmt(pending.heightA)}</b> (plus one confirmation). Come back anytime.`
-      : pending.stage==='hold' ? `Dealt from block <b>${fmt(pending.heightA)}</b>. Choose holds — the draw will ride the next block after you commit.`
-      : `The draw rides block <b>${fmt(pending.heightB)}</b> (plus one confirmation). Come back anytime.`;
+      pending.stage==='deal' ? `Your hand rides block <b>${fmt(pending.heightA)}</b> plus one confirmation${prog}.`
+      : pending.stage==='hold' ? `Dealt from block <b>${fmt(pending.heightA)}</b>. Choose your holds below.`
+      : `The draw rides block <b>${fmt(pending.heightB)}</b> plus one confirmation${prog}.`;
   } else noteBox.style.display='none';
   $('mode-hint').textContent = mode==='tide'
     ? 'Two real blocks, one hand: the first deals, you choose holds, the second draws. ~20 minutes of honest suspense.'
     : 'Practice hands are seeded locally and play at once — pure fun, not provable.';
-  document.querySelector('.slip').classList.toggle('locked', busy || (mode==='tide' && !!pending && pending.stage!=='hold'));
 }
 function ago(ts){
   const s = Math.max(0,(Date.now()-ts)/1000);
@@ -663,9 +794,9 @@ function ago(ts){
   if(s<86400) return Math.round(s/3600)+' h ago';
   return Math.round(s/86400)+' d ago';
 }
-const miniCard = (c) => {
-  const col = (suitOf(c)===1||suitOf(c)===2) ? 'red' : '';
-  return `<span class="${col}">${RANKS[rankOf(c)]}${SUITS[suitOf(c)]}</span>`;
+const miniCard = (c, held) => {
+  const cls = ((suitOf(c)===1||suitOf(c)===2) ? 'red' : '') + (held ? ' held' : '');
+  return `<span class="${cls}">${RANKS[rankOf(c)]}${SUITS[suitOf(c)]}</span>`;
 };
 function renderLog(){
   $('log-count').textContent = log.length ? `${log.length} hand${log.length>1?'s':''}` : '';
@@ -675,13 +806,13 @@ function renderLog(){
   for(const r of log){
     const tr = document.createElement('tr');
     const proof = r.mode==='tide'
-      ? `<a class="verify-link" href="https://mempool.space/testnet4/block/${r.hashA}" target="_blank" rel="noopener">A ${fmt(r.heightA)}</a>
-         · <a class="verify-link" href="https://mempool.space/testnet4/block/${r.hashB}" target="_blank" rel="noopener">B ${fmt(r.heightB)}</a>
-         · <a href="#" class="verify-link" data-verify="${r.n}">verify ✓</a>`
+      ? `<a class="verify-link" href="https://mempool.space/testnet4/block/${r.hashA}" target="_blank" rel="noopener">A&nbsp;${fmt(r.heightA)}</a>
+         · <a class="verify-link" href="https://mempool.space/testnet4/block/${r.hashB}" target="_blank" rel="noopener">B&nbsp;${fmt(r.heightB)}</a>
+         · <button type="button" class="verify-link verify-btn" data-verify="${r.n}">verify ✓</button>`
       : `<span class="tag">practice</span>`;
     tr.innerHTML = `
       <td>#${r.n} ${r.mode==='tide'?'<span class="tag tide">tide</span>':''}<br><span class="when" title="${new Date(r.at).toLocaleString()}">${ago(r.at)}</span></td>
-      <td class="mini">${r.dealt.map(miniCard).join(' ')} → ${r.final.map(miniCard).join(' ')}</td>
+      <td class="mini">${r.dealt.map((c,i)=>miniCard(c, r.holds[i])).join(' ')} → ${r.final.map((c)=>miniCard(c)).join(' ')}</td>
       <td class="num">${fmt(r.stake)}</td>
       <td>${r.resultName}</td>
       <td class="num ${r.delta>=0?'delta-win':'delta-lose'}">${fmtDelta(r.delta)}</td>
@@ -689,7 +820,6 @@ function renderLog(){
     tb.appendChild(tr);
   }
   tb.querySelectorAll('[data-verify]').forEach((a)=> a.addEventListener('click', async (e)=>{
-    e.preventDefault();
     const r = log.find((x)=>String(x.n)===a.dataset.verify);
     for(const [h, hash] of [[r.heightA, r.hashA],[r.heightB, r.hashB]]){
       let canonical = null;
@@ -761,9 +891,10 @@ if(pending){
     (async ()=>{
       const seedA = await sha256hex(pending.hashA + '|' + pending.mark);
       hand = deal(seedA);
+      renderFeltStrip(`STAKE ${fmt(pending.stake)}`);
       await showDeal(hand);
       phase='hold'; setHoldable(true);
-      $('table-note').textContent = 'The tide has dealt. Choose your holds, then commit the draw.';
+      litDealt();
       renderSlip();
     })();
   } else watchTide();
