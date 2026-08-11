@@ -374,7 +374,7 @@ function nearMiss(hand){
 }
 
 /* ================================================================ state */
-const LS = { purse:'poker-purse', log:'poker-log', pending:'poker-pending', sound:'poker-sound', games:'poker-games' };
+const LS = { purse:'poker-purse', log:'poker-log', pending:'poker-pending', sound:'poker-sound', games:'poker-games', practice:'poker-practice' };
 const $ = (id) => document.getElementById(id);
 const MEMPOOL = 'https://mempool.space/testnet4/api';
 const MINUS = '−';
@@ -611,6 +611,8 @@ async function practiceDeal(){
   busy = true; phase='idle'; hideBanner(); litRow(null); renderSlip();
   practiceSeedA = await sha256hex('practice|' + randHex(16));
   hand = deal(practiceSeedA);
+  // survive a reload mid-hold: the stake is already spent, so the hand must live
+  save(LS.practice, { seedA: practiceSeedA, stake: st });
   renderFeltStrip(`STAKE ${fmt(st)}`);
   await showDeal(hand);
   phase = 'hold'; busy = false;
@@ -625,6 +627,7 @@ async function practiceDraw(){
   const seedB = await sha256hex('practice-b|' + randHex(16));
   const holdsUsed = [...holds];
   const out = finishGame({ seedA: practiceSeedA, seedB, holdsUsed, stake: practiceStake });
+  save(LS.practice, null);
   const sweatLast = out.result.mult >= 4 || nearMiss(out.finalHand) != null;
   await showDraw(out.finalHand, holdsUsed, { sweatLast });
   await sleep(watched() ? 350 : 0);
@@ -656,7 +659,7 @@ async function hashAtHeight(h, { cacheOk=false } = {}){
 }
 async function tideDeal(){
   const st = stakeVal();
-  const tip = await fetchTip();
+  tipAt = 0; const tip = await fetchTip(); // NEVER a cached tip: the named block must not exist yet
   purse -= st; save(LS.purse, purse);
   pending = { stage:'deal', stake: st, mark: randHex(16), heightA: tip+1 };
   save(LS.pending, pending);
@@ -665,17 +668,29 @@ async function tideDeal(){
   watchTide();
 }
 async function tideCommitHolds(){
-  // holds chosen; the redraw rides the NEXT block after this moment
-  const tip = await fetchTip();
-  pending = { ...pending, stage:'draw', holds: [...holds], heightB: tip+1 };
-  save(LS.pending, pending);
-  setHoldable(false); phase='idle';
+  // holds chosen; the redraw rides the NEXT block after this moment. A cached
+  // tip here could name an ALREADY-MINED block — the redraw randomness would
+  // exist at decision time, breaking the game's whole promise. Fresh, always.
+  busy = true; renderSlip();
+  try{
+    tipAt = 0; const tip = await fetchTip();
+    pending = { ...pending, stage:'draw', holds: [...holds], heightB: tip+1 };
+    save(LS.pending, pending);
+    setHoldable(false); phase='idle';
+  } finally { busy = false; }
   renderAll();
   showBanner('Holds committed', `The draw rides block <b>${fmt(pending.heightB)}</b> — back in ~10 min.`);
   watchTide();
 }
 let tideTimer = null;
+let ticking = false; // reentrancy guard: slow network + 30s interval must
+                     // never let two ticks both settle the same hand
 async function tideTick(){
+  if(!pending || ticking) return;
+  ticking = true;
+  try{ await tideTickInner(); } finally { ticking = false; }
+}
+async function tideTickInner(){
   if(!pending) return;
   tipAt = 0; const tip = await fetchTip();
   renderSlip(); // keep the (N to go) progress line honest
@@ -707,6 +722,7 @@ async function tideTick(){
     await showDeal(hand); // restore the dealt hand on screen (e.g. after a reload)
     holds = [...p.holds];
     cardEls.forEach((b,i)=>b.setAttribute('aria-pressed', String(holds[i])));
+    handEl.classList.toggle('holding', holds.some(Boolean)); // dim asymmetry in the replay too
     const out = finishGame({ seedA, seedB: realSeedB, holdsUsed: p.holds, stake: p.stake,
       tideInfo: { heightA: p.heightA, heightB: p.heightB, hashA: p.hashA, hashB, mark: p.mark } });
     const sweatB = out.result.mult >= 4 || nearMiss(out.finalHand) != null;
@@ -906,6 +922,20 @@ if(pending){
       renderSlip();
     })();
   } else watchTide();
+} else {
+  // a practice hand abandoned mid-hold: its stake was spent — restore it
+  const pr = load(LS.practice, null);
+  if(pr && pr.seedA){
+    (async ()=>{
+      practiceSeedA = pr.seedA; practiceStake = pr.stake;
+      hand = deal(pr.seedA);
+      renderFeltStrip(`STAKE ${fmt(pr.stake)}`);
+      await showDeal(hand);
+      phase='hold'; setHoldable(true);
+      litDealt();
+      renderSlip();
+    })();
+  }
 }
 </script>
 </body>
